@@ -10,6 +10,13 @@ git clone -b scarthgap https://github.com/superna9999/meta-meson.git
 
 Pak je potřeba opravit cesty v build/conf/bblayers.conf
 
+Na Ubuntu je pak dobré povolit unprivileged user namespaces (AppArmor to blokuje)
+
+```bash
+echo "kernel.apparmor_restrict_unprivileged_userns=0" | sudo tee /etc/sysctl.d/60-apparmor-namespace.conf
+sudo sysctl -p /etc/sysctl.d/60-apparmor-namespace.conf
+```
+
 A můžeme začít "péct" :
 
 ```bash
