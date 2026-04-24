@@ -6,6 +6,8 @@ Subject: [PATCH] arm64: dts: amlogic: meson-g12a-radxa-zero: add MCP2515 CAN
 Enable an MCP2515 controller connected on SPICC1 CS0 with:
 - 20MHz fixed clock
 - IRQ on GPIOX_8 (falling edge)
+
+Upstream-Status: Inappropriate [board-specific DTS customization for Radxa Zero BSP]
 ---
  .../dts/amlogic/meson-g12a-radxa-zero.dts     | 35 +++++++++++++++++++
  1 file changed, 35 insertions(+)
