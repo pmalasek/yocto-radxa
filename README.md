@@ -50,6 +50,6 @@ source .venv/bin/activate
 
 # a pokračujeme
 boot-g12.py rz-udisk-loader.bin
-lsblk   # Zjistíme na kterém zařízení máme RADXA Zero
+lsblk   # Zjistíme na kterém zařízení /dev/sdX máme RADXA Zero
 sudo dd if=core-image-base-radxa-zero.wic of=/dev/sdX bs=4M status=progress conv=fsync
 ```
