@@ -1,0 +1,57 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "radxa,zero";
+
+    /* 1. FRAGMENT: Definice 20MHz hodin - přidáváme do kořene (root) stromu */
+    fragment@0 {
+        target-path = "/";
+        __overlay__ {
+            can0_osc: can0-osc {
+                compatible = "fixed-clock";
+                #clock-cells = <0>;
+                clock-frequency = <20000000>; /* 20 MHz */
+            };
+        };
+    };
+
+    /* 2. FRAGMENT: Konfigurace pinu pro přerušení (INT) */
+    fragment@1 {
+        target = <&periphs_pinctrl>;
+        __overlay__ {
+            mcp2515_int_pins: mcp2515-int-pins {
+                mux {
+                    groups = "GPIOX_8";
+                    function = "gpio_periphs";
+                    bias-pull-up;
+                    drive-strength-microamp = <4000>;
+                };
+            };
+        };
+    };
+
+    /* 3. FRAGMENT: Konfigurace SPI a samotného CAN řadiče */
+    fragment@2 {
+        target = <&spicc1>;
+        __overlay__ {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&spicc1_pins>;
+            cs-gpios = <&gpio 22 1>;
+            status = "okay";
+
+            can0: mcp2515@0 {
+                compatible = "microchip,mcp2515";
+                reg = <0>;
+                spi-max-frequency = <10000000>; /* 10 MHz SPI bus */
+                pinctrl-names = "default";
+                pinctrl-0 = <&mcp2515_int_pins>;
+                interrupt-parent = <&gpio_intc>;
+                interrupts = <85 2>;
+                clocks = <&can0_osc>;
+            };
+        };
+    };
+};

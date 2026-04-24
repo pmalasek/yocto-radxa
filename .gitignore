@@ -1,0 +1,8 @@
+# Ignoruj stažené vrstvy (ty se spravují jinak nebo stahují znovu)
+poky/
+meta-meson/
+meta-openembedded/
+
+# Ignoruj celou složku build kromě tvé konfigurace
+build/*
+!build/conf/
