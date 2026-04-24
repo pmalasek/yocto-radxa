@@ -36,7 +36,17 @@ Zapsání na Radxa Zepro
 Na Radxa Zero stiskneme tlačítko a připojíme napájení
 
 ```bash
+# pokud nemáme nainstalované prostředí, nainstalujeme ho
+python3 -m venv ~/radxa-flash
+source ~/radxa-flash/bin/activate
+# Instalace nástroje pyamlboot
+pip install pyamlboot
+wget https://dl.radxa.com/zero/images/loader/rz-udisk-loader.bin
+
+# jinak jen aktivujeme venv
 source .venv/bin/activate
+
+# a pokračujeme
 boot-g12.py rz-udisk-loader.bin
 lsblk   # Zjistíme na kterém zařízení máme RADXA Zero
 sudo dd if=core-image-base-radxa-zero.wic of=/dev/sdX bs=4M status=progress conv=fsync
