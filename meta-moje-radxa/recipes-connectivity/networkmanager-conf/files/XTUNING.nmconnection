@@ -1,7 +1,6 @@
 [connection]
 id=XTUNING
 type=wifi
-interface-name=wlan0
 autoconnect=true
 
 [wifi]

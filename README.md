@@ -30,3 +30,14 @@ Výsledný soubor najdeme na
 cd tmp/deploy/images/radxa-zero/
 bzcat core-image-base-radxa-zero-20260423194113.wic.bz2 > core-image-base-radxa-zero.wic    # rozbalení BZIP2
 ```
+
+Zapsání na Radxa Zepro
+
+Na Radxa Zero stiskneme tlačítko a připojíme napájení
+
+```bash
+source .venv/bin/activate
+boot-g12.py rz-udisk-loader.bin
+lsblk   # Zjistíme na kterém zařízení máme RADXA Zero
+sudo dd if=core-image-base-radxa-zero.wic of=/dev/sdX bs=4M status=progress conv=fsync
+```
