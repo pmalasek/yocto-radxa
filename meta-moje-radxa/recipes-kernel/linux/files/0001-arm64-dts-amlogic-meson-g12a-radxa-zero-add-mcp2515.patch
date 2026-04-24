@@ -1,4 +1,4 @@
-From f4d609dd746b5b74bb64d6e29dd9882e6b3e446c Mon Sep 17 00:00:00 2001
+From 64f661d771b0f58845d0874172615d2a76edd0bc Mon Sep 17 00:00:00 2001
 From: "Petr Malasek (Yoga)" <petr.malasek@xtuning.cz>
 Date: Fri, 24 Apr 2026 14:33:51 +0200
 Subject: [PATCH] arm64: dts: amlogic: meson-g12a-radxa-zero: add MCP2515 CAN
@@ -10,11 +10,11 @@ Enable MCP2515 CAN controller connected on SPICC0 (GPIOX bank):
 
 Upstream-Status: Inappropriate [board-specific DTS customization for Radxa Zero BSP]
 ---
- .../dts/amlogic/meson-g12a-radxa-zero.dts     | 25 +++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ .../dts/amlogic/meson-g12a-radxa-zero.dts     | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts b/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts
-index fcd7e1d8e16f..2ac5224998ca 100644
+index fcd7e1d8e16f..8b8dab0dbe8c 100644
 --- a/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts
 +++ b/arch/arm64/boot/dts/amlogic/meson-g12a-radxa-zero.dts
 @@ -8,6 +8,7 @@
@@ -38,7 +38,7 @@ index fcd7e1d8e16f..2ac5224998ca 100644
  	wifi32k: wifi32k {
  		compatible = "pwm-clock";
  		#clock-cells = <0>;
-@@ -401,3 +408,21 @@ &uart_AO {
+@@ -401,3 +408,23 @@ &uart_AO {
  &usb {
  	status = "okay";
  };
@@ -54,7 +54,9 @@ index fcd7e1d8e16f..2ac5224998ca 100644
 +        can0: can@0 {
 +                compatible = "microchip,mcp2515";
 +                reg = <0>;
-+                spi-max-frequency = <1000000>;
++                spi-max-frequency = <500000>;
++                spi-cpha;
++                spi-cpol;
 +                interrupt-parent = <&gpio_intc>;
 +                interrupts = <GPIOX_8 IRQ_TYPE_EDGE_FALLING>;
 +                clocks = <&can0_osc>;
