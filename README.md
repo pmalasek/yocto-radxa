@@ -5,7 +5,7 @@ Po stažení projektu z GITu je třeba doinstalovat následující
 ```bash
 git clone -b scarthgap https://git.yoctoproject.org/git/poky
 git clone -b scarthgap https://git.openembedded.org/meta-openembedded
-git clone -b scarthgap https://github.com/radxa/meta-meson
+git clone -b scarthgap https://github.com/superna9999/meta-meson.git
 ```
 
 Pak je potřeba opravit cesty v build/conf/bblayers.conf
