@@ -38,6 +38,7 @@ bzcat core-image-base-radxa-zero-20260423194113.wic.bz2 > core-image-base-radxa-
 Na Radxa Zero stiskneme tlačítko a připojíme napájení
 
 ```bash
+sudo su     # Musíme být root pro zápis na sdX
 # pokud nemáme nainstalované prostředí, nainstalujeme ho
 python3 -m venv ~/radxa-flash
 source ~/radxa-flash/bin/activate
@@ -51,5 +52,5 @@ source .venv/bin/activate
 # a pokračujeme
 boot-g12.py rz-udisk-loader.bin
 lsblk   # Zjistíme na kterém zařízení /dev/sdX máme RADXA Zero
-sudo dd if=core-image-base-radxa-zero.wic of=/dev/sdX bs=4M status=progress conv=fsync
+dd if=core-image-base-radxa-zero.wic of=/dev/sdX bs=4M status=progress conv=fsync
 ```

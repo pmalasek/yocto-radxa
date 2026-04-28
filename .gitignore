@@ -6,3 +6,6 @@ meta-openembedded/
 # Ignoruj celou složku build kromě tvé konfigurace
 build/*
 !build/conf/
+meta-moje-radxa/xpluto9/bin/
+meta-moje-radxa/xpluto9/certs/
+meta-moje-radxa/xpluto9/.env
