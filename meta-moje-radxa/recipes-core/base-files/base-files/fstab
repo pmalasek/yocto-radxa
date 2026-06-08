@@ -1,10 +1,8 @@
 # PlutoLinux fstab for Radxa Zero
-# /boot uses LABEL (stable across builds, UUID changes every build)
+# /boot entry is injected automatically by wic during image build (fixed UUID in sdimage-meson.wks)
 
 /dev/root            /                    auto       defaults              1  1
 proc                 /proc                proc       defaults              0  0
 devpts               /dev/pts             devpts     mode=0620,ptmxmode=0666,gid=5      0  0
 tmpfs                /run                 tmpfs      mode=0755,nodev,nosuid,strictatime 0  0
 tmpfs                /var/volatile        tmpfs      defaults              0  0
-
-LABEL=boot           /boot                vfat       defaults,nofail       0  0
