@@ -12,7 +12,7 @@ inherit systemd
 SYSTEMD_SERVICE:${PN} = "resize-rootfs.service"
 SYSTEMD_AUTO_ENABLE:${PN} = "enable"
 
-RDEPENDS:${PN} = "util-linux-sfdisk e2fsprogs-resize2fs util-linux-findmnt"
+RDEPENDS:${PN} = "util-linux-sfdisk util-linux-partx e2fsprogs-resize2fs util-linux-findmnt"
 
 do_install() {
     install -d ${D}${sbindir}

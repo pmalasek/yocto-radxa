@@ -95,6 +95,7 @@ flash dev:
     echo "Synchronizuji disk..."
     sudo sync
     echo "Vypínám disk {{dev}}..."
+    sudo umount {{dev}}1 2>/dev/null || true
     sudo udisksctl power-off -b {{dev}}
     echo "Hotovo."
 
