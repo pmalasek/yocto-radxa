@@ -1,5 +1,8 @@
 # RADXA YOCTO
 
+> Projekt používá nástroj `just` pro automatizaci buildování a správy obrazu.
+> Popis instalace a přehled všech příkazů najdete v [README_JUST.md](README_JUST.md).
+
 ## Inicializace projektu
 
 - Po stažení projektu z GITu je třeba doinstalovat následující
