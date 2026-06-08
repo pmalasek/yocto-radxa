@@ -18,6 +18,8 @@ git clone -b scarthgap https://github.com/superna9999/meta-meson.git
 sudo apt install gawk wget git-core diffstat unzip texinfo gcc-multilib \
      build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
      xz-utils debianutils iputils-ping lz4 zstd
+sudo ln -s /usr/lib/x86_64-linux-gnu/libcrypt.so.2 /usr/lib/x86_64-linux-gnu/libcrypt.so
+sudo apt install libcrypt-dev
 
 ```
 
