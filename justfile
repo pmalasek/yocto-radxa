@@ -170,6 +170,21 @@ usb-erase:
     cd "{{chip_dir}}"
     sudo "$boot_g12" radxa-zero-erase-emmc.bin
 
+# Otevře sériovou konzoli Radxa Zero (UART přes USB adaptér)
+serial-terminal port="/dev/ttyUSB0":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v tio &>/dev/null; then
+        echo "tio není nainstalováno – spusťte: just deps"
+        exit 1
+    fi
+    if [[ ! -e "{{port}}" ]]; then
+        echo "Port {{port}} neexistuje – zkontrolujte připojení USB-UART adaptéru"
+        exit 1
+    fi
+    clear
+    sudo tio -b 115200 {{port}}
+
 # ── Nastavení prostředí ───────────────────────────────────────────────────────
 
 # Nainstaluje závislosti, naklonuje vrstvy a opraví AppArmor
@@ -190,7 +205,7 @@ setup-environment:
 deps:
     sudo apt install -y gawk wget git-core diffstat unzip texinfo gcc-multilib \
         build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
-        xz-utils debianutils iputils-ping lz4 zstd
+        xz-utils debianutils iputils-ping lz4 zstd tio pipx
     sudo ln -sf /usr/lib/x86_64-linux-gnu/libcrypt.so.2 \
                 /usr/lib/x86_64-linux-gnu/libcrypt.so || true
 
