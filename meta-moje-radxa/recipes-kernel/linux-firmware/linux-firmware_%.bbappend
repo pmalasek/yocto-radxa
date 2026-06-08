@@ -8,6 +8,9 @@ FILES:${PN}-bcm43455-bt = " \
 "
 
 do_install:append() {
+    # Install BCM43455 Bluetooth HCD firmware (not covered by meta-meson's *.bin/*.txt loop)
+    install -m 0644 ${WORKDIR}/brcmfmac_sdio-firmware/BCM4345C0.hcd ${D}${nonarch_base_libdir}/firmware/brcm/
+
     # Odstraň všechny zbytečné firmware
     rm -rf ${D}${nonarch_base_libdir}/firmware/qcom
     rm -rf ${D}${nonarch_base_libdir}/firmware/netronome

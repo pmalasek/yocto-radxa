@@ -8,6 +8,7 @@ image     := "core-image-base"
 build_dir := "build"
 deploy    := build_dir / "tmp/deploy/images" / machine
 init      := "source poky/oe-init-build-env " + build_dir + " > /dev/null"
+chip_dir  := "chip"
 
 # Výchozí recept – zobrazí seznam
 default:
@@ -80,7 +81,7 @@ extract:
     bzcat "$latest" > "$out"
     echo "Hotovo: $out ($(du -h "$out" | cut -f1))"
 
-# Zapíše obraz na zařízení (vyžaduje root): just flash /dev/sdb
+# Zapíše obraz na SD kartu (vyžaduje root): just flash /dev/sdb
 flash dev:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -93,9 +94,45 @@ flash dev:
     sudo dd if="$wic" of={{dev}} bs=4M status=progress conv=fsync
     echo "Hotovo."
 
-# Přepne Radxa Zero do USB boot módu (vyžaduje rz-udisk-loader.bin)
-usb-boot loader="rz-udisk-loader.bin":
-    boot-g12.py {{loader}}
+# Zapíše obraz na eMMC (přes USB disk mód): just flash-emmc /dev/sdX
+# Před spuštěním musí být deska v USB disk módu: just usb-boot
+flash-emmc dev:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    wic="{{deploy}}/{{image}}-{{machine}}.wic"
+    mmc_bl="{{deploy}}/u-boot.bin.mmc.bin"
+    if [[ ! -f "$wic" ]]; then
+        echo "Obraz $wic neexistuje – spusťte nejprve: just extract"
+        exit 1
+    fi
+    if [[ ! -f "$mmc_bl" ]]; then
+        echo "eMMC bootloader $mmc_bl nenalezen"
+        exit 1
+    fi
+    echo "Zapisuji $wic → {{dev}}"
+    sudo dd if="$wic" of={{dev}} bs=4M status=progress conv=fsync
+    echo "Přepisuji bootloader eMMC variantou ($mmc_bl)..."
+    sudo dd if="$mmc_bl" of={{dev}} conv=notrunc bs=1 count=440
+    sudo dd if="$mmc_bl" of={{dev}} conv=notrunc bs=512 skip=1 seek=1
+    sudo sync
+    echo "Hotovo. (použit u-boot.bin.mmc.bin)"
+
+# Přepne Radxa Zero do USB boot módu (spouští se z adresáře chip/)
+usb-boot:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    loader="{{chip_dir}}/rz-udisk-loader.bin"
+    if [[ ! -f "$loader" ]]; then
+        echo "Soubor $loader nenalezen – spusťte nejprve: just setup-usb"
+        exit 1
+    fi
+    boot_g12="$HOME/.local/bin/boot-g12.py"
+    if [[ ! -x "$boot_g12" ]]; then
+        echo "boot-g12.py nenalezen – spusťte nejprve: just setup-usb"
+        exit 1
+    fi
+    cd "{{chip_dir}}"
+    sudo "$boot_g12" rz-udisk-loader.bin
 
 # ── Nastavení prostředí ───────────────────────────────────────────────────────
 
@@ -120,6 +157,27 @@ deps:
         xz-utils debianutils iputils-ping lz4 zstd
     sudo ln -sf /usr/lib/x86_64-linux-gnu/libcrypt.so.2 \
                 /usr/lib/x86_64-linux-gnu/libcrypt.so || true
+
+# Připraví adresář chip/ pro USB boot (stáhne loader, nainstaluje boot-g12.py)
+setup-usb:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p "{{chip_dir}}"
+    loader="{{chip_dir}}/rz-udisk-loader.bin"
+    if [[ ! -f "$loader" ]]; then
+        echo "Stahuji rz-udisk-loader.bin → $loader"
+        curl -fL -o "$loader" \
+            https://dl.radxa.com/zero/images/loader/rz-udisk-loader.bin
+        echo "Staženo: $loader ($(du -h "$loader" | cut -f1))"
+    else
+        echo "$loader již existuje, přeskakuji stažení."
+    fi
+    echo "Instaluji pyamlboot (boot-g12.py)..."
+    if ! command -v pipx &>/dev/null; then
+        sudo apt install -y pipx
+    fi
+    pipx install pyamlboot
+    echo "USB boot prostředí připraveno v {{chip_dir}}/"
 
 # Povolí unprivileged user namespaces (potřeba na Ubuntu s AppArmor)
 fix-apparmor:

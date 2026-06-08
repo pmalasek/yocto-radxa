@@ -13,3 +13,8 @@ S = "${WORKDIR}/git"
 inherit cmake
 
 EXTRA_OECMAKE = "-DNATS_BUILD_EXAMPLES=OFF -DNATS_BUILD_TESTING=OFF -DNATS_BUILD_STREAMING=OFF"
+
+do_install:append() {
+    # Fix buildpaths: cmake config embeds recipe-sysroot absolute paths in INTERFACE_LINK_LIBRARIES
+    sed -i "s|${RECIPE_SYSROOT}||g" ${D}${libdir}/cmake/cnats/cnats-config.cmake
+}
