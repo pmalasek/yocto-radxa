@@ -92,30 +92,48 @@ flash dev:
     fi
     echo "Zapisuji $wic → {{dev}}"
     sudo dd if="$wic" of={{dev}} bs=4M status=progress conv=fsync
+    echo "Synchronizuji disk..."
+    sudo sync
+    echo "Vypínám disk {{dev}}..."
+    sudo udisksctl power-off -b {{dev}}
     echo "Hotovo."
 
-# Zapíše obraz na eMMC (přes USB disk mód): just flash-emmc /dev/sdX
-# Před spuštěním musí být deska v USB disk módu: just usb-boot
+# Zapíše obraz na eMMC přes USB disk mód: just flash-emmc /dev/sdX
+# Nejprve uveď desku do USB disk módu: just usb-boot
+# Poznámka: u-boot.bin.sd.bin funguje pro OBOJÍ (SD i eMMC) – WIC je správný i pro eMMC
 flash-emmc dev:
     #!/usr/bin/env bash
     set -euo pipefail
     wic="{{deploy}}/{{image}}-{{machine}}.wic"
-    mmc_bl="{{deploy}}/u-boot.bin.mmc.bin"
     if [[ ! -f "$wic" ]]; then
         echo "Obraz $wic neexistuje – spusťte nejprve: just extract"
         exit 1
     fi
-    if [[ ! -f "$mmc_bl" ]]; then
-        echo "eMMC bootloader $mmc_bl nenalezen"
-        exit 1
-    fi
     echo "Zapisuji $wic → {{dev}}"
     sudo dd if="$wic" of={{dev}} bs=4M status=progress conv=fsync
-    echo "Přepisuji bootloader eMMC variantou ($mmc_bl)..."
-    sudo dd if="$mmc_bl" of={{dev}} conv=notrunc bs=1 count=440
-    sudo dd if="$mmc_bl" of={{dev}} conv=notrunc bs=512 skip=1 seek=1
     sudo sync
-    echo "Hotovo. (použit u-boot.bin.mmc.bin)"
+    echo "Hotovo. eMMC obsahuje správný obraz (bootloader u-boot.bin.sd.bin platí i pro eMMC)."
+
+# Ověří bootloader a extlinux.conf na zapsaném médiu: just check-flash /dev/sdX
+check-flash dev:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== Bootloader (sektor 1, offset 0x200) ==="
+    sudo xxd -s 512 -l 32 {{dev}}
+    echo ""
+    echo "=== Partition table ==="
+    sudo fdisk -l {{dev}}
+    echo ""
+    echo "=== Obsah /boot partition ==="
+    tmp=$(mktemp -d)
+    trap "sudo umount $tmp 2>/dev/null || true; rmdir $tmp" EXIT
+    part="${{dev}}1"
+    [[ -b "$part" ]] || part="${{dev}}p1"
+    sudo mount -o ro "$part" "$tmp"
+    find "$tmp" -type f | sort
+    echo ""
+    echo "=== extlinux.conf ==="
+    cat "$tmp/extlinux/extlinux.conf" 2>/dev/null || echo "(nenalezeno)"
 
 # Přepne Radxa Zero do USB boot módu (spouští se z adresáře chip/)
 usb-boot:
@@ -133,6 +151,23 @@ usb-boot:
     fi
     cd "{{chip_dir}}"
     sudo "$boot_g12" rz-udisk-loader.bin
+
+# Přepne Radxa Zero do USB boot módu (spouští se z adresáře chip/)
+usb-erase:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    loader="{{chip_dir}}/radxa-zero-erase-emmc.bin"
+    if [[ ! -f "$loader" ]]; then
+        echo "Soubor $loader nenalezen – spusťte nejprve: just setup-usb"
+        exit 1
+    fi
+    boot_g12="$HOME/.local/bin/boot-g12.py"
+    if [[ ! -x "$boot_g12" ]]; then
+        echo "boot-g12.py nenalezen – spusťte nejprve: just setup-usb"
+        exit 1
+    fi
+    cd "{{chip_dir}}"
+    sudo "$boot_g12" radxa-zero-erase-emmc.bin
 
 # ── Nastavení prostředí ───────────────────────────────────────────────────────
 
@@ -164,6 +199,7 @@ setup-usb:
     set -euo pipefail
     mkdir -p "{{chip_dir}}"
     loader="{{chip_dir}}/rz-udisk-loader.bin"
+    erase="{{chip_dir}}/radxa-zero-erase-emmc.bin"
     if [[ ! -f "$loader" ]]; then
         echo "Stahuji rz-udisk-loader.bin → $loader"
         curl -fL -o "$loader" \
@@ -171,6 +207,14 @@ setup-usb:
         echo "Staženo: $loader ($(du -h "$loader" | cut -f1))"
     else
         echo "$loader již existuje, přeskakuji stažení."
+    fi
+    if [[ ! -f "$erase" ]]; then
+        echo "Stahuji radxa-zero-erase-emmc.bin → $erase"
+        curl -fL -o "$erase" \
+            https://dl.radxa.com/zero/images/loader/radxa-zero-erase-emmc.bin
+        echo "Staženo: $erase ($(du -h "$erase" | cut -f1))"
+    else
+        echo "$erase již existuje, přeskakuji stažení."
     fi
     echo "Instaluji pyamlboot (boot-g12.py)..."
     if ! command -v pipx &>/dev/null; then

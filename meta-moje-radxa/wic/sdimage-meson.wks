@@ -1,0 +1,8 @@
+# short-description: Create SD card image with a boot partition
+# long-description: Creates a partitioned SD card image. Boot files
+# are located in the first vfat partition.
+# Fixed UUID so /etc/fstab stays consistent across builds.
+
+part /boot --source bootimg-partition --fstype=vfat --label boot --active --align 4096 --size 64 --sourceparams="loader=u-boot" --uuid B19D-D545
+part / --source rootfs --fstype=ext4 --use-uuid --label root --align 4096
+bootloader --ptable msdos --append="console=ttyAML0,115200"
