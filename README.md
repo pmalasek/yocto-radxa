@@ -12,6 +12,21 @@ git clone -b scarthgap https://github.com/superna9999/meta-meson.git
 
 - Pak je potřeba opravit cesty v build/conf/bblayers.conf
 
+- Nainstalujeme potřebné nástroje (Ubuntu)
+
+```bash
+sudo apt install gawk wget git-core diffstat unzip texinfo gcc-multilib \
+     build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
+     xz-utils debianutils iputils-ping lz4 zstd
+
+```
+
+- Vytvoříme si pomocné cesty
+
+```bash
+mkdir -p /home/pmalasek/src/pluto/yocto-radxa/meta-moje-radxa/xpluto9/bin /home/pmalasek/src/pluto/yocto-radxa/meta-moje-radxa/xpluto9/certs && touch /home/pmalasek/src/pluto/yocto-radxa/meta-moje-radxa/xpluto9/.env
+```
+
 - Na Ubuntu je pak dobré povolit unprivileged user namespaces (AppArmor to blokuje)
 
 ```bash

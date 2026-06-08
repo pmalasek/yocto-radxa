@@ -1,6 +1,12 @@
 # Odstraň zbytečné firmware pro Radxa Zero
 # Necháme jen BCM (WiFi) a Amlogic (Video decoder)
 
+# Define BT firmware sub-package for BCM43455 (Radxa Zero)
+PACKAGES =+ "${PN}-bcm43455-bt"
+FILES:${PN}-bcm43455-bt = " \
+    ${nonarch_base_libdir}/firmware/brcm/BCM4345C0.hcd \
+"
+
 do_install:append() {
     # Odstraň všechny zbytečné firmware
     rm -rf ${D}${nonarch_base_libdir}/firmware/qcom
