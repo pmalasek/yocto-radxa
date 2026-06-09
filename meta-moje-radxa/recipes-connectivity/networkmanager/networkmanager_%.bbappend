@@ -1,3 +1,7 @@
+# Odstraň nftables - NM funguje i bez firewall backendu
+# Ušetří ~1MB (libnftables)
+PACKAGECONFIG:remove = "nftables"
+
 # Zakáž NetworkManager-wait-online.service - zbytečně zdrží boot
 # Aplikace mají používat D-Bus signály nebo retry logiku místo čekání na síť při bootu
 
