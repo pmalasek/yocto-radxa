@@ -1,0 +1,13 @@
+[Unit]
+Description=xPluto9 Loader
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/opt/pluto9/.env
+ExecStart=/opt/pluto9/bin/pluto-loader
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
