@@ -46,10 +46,10 @@
                 compatible = "microchip,mcp2515";
                 reg = <0>;
                 spi-max-frequency = <10000000>; /* 10 MHz SPI bus */
+                oscillator-frequency = <20000000>; /* 20 MHz crystal */
                 pinctrl-names = "default";
                 pinctrl-0 = <&mcp2515_int_pins>;
-                interrupt-parent = <&gpio_intc>;
-                interrupts = <85 2>;
+                interrupts-extended = <&gpio_intc 73 2>; /* GPIOX_8, IRQ_TYPE_EDGE_FALLING */
                 clocks = <&can0_osc>;
             };
         };
