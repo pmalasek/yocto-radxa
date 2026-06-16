@@ -188,7 +188,7 @@ serial-terminal port="/dev/ttyUSB0":
 # ── Nastavení prostředí ───────────────────────────────────────────────────────
 
 # Nainstaluje závislosti, naklonuje vrstvy a opraví AppArmor
-setup: deps setup-environment fix-apparmor
+setup: deps check-locale setup-environment fix-apparmor
 
 # Naklonuje chybějící vrstvy (poky, meta-openembedded, meta-meson)
 setup-environment:
@@ -205,9 +205,24 @@ setup-environment:
 deps:
     sudo apt install -y gawk wget git-core diffstat unzip texinfo gcc-multilib \
         build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
-        xz-utils debianutils iputils-ping lz4 zstd tio pipx
-    sudo ln -sf /usr/lib/x86_64-linux-gnu/libcrypt.so.2 \
+        xz-utils debianutils iputils-ping lz4 zstd tio pipx libcrypt-dev
+    sudo ln -sf /usr/lib/x86_64-linux-gnu/libcrypt.so.1 \
                 /usr/lib/x86_64-linux-gnu/libcrypt.so || true
+
+# Zkontroluje dostupnost locale en_US.UTF-8 a případně ho nainstaluje
+check-locale:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    locale="en_US.UTF-8"
+    if locale -a 2>/dev/null | grep -qiF "en_US.utf8"; then
+        echo "Locale $locale je již dostupné."
+    else
+        echo "Locale $locale není dostupné – instaluji..."
+        sudo apt install -y locales
+        sudo locale-gen "$locale"
+        sudo update-locale LANG="$locale"
+        echo "Locale $locale nainstalováno."
+    fi
 
 # Připraví adresář chip/ pro USB boot (stáhne loader, nainstaluje boot-g12.py)
 setup-usb:
