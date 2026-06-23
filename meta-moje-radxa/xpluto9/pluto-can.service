@@ -5,9 +5,9 @@ After=network.target
 
 [Service]
 # Cesta k binárce
-ExecStart=/opt/pluto9/pluto/bin/pluto-can-sender
+ExecStart=/opt/pluto/bin/pluto-can-sender
 # Pracovní adresář (pokud binárka čte nějaké lokální soubory)
-WorkingDirectory=/opt/pluto9/pluto
+WorkingDirectory=/opt/pluto
 # Automatický restart při pádu po 5 sekundách
 Restart=always
 RestartSec=5
