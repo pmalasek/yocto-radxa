@@ -168,5 +168,5 @@ ssh root@<IP-adresa-zařízení>
 IP adresu zařízení zjistíte například ze DHCP serveru routeru nebo přes `nmap`:
 
 ```bash
-nmap -sn 192.168.1.0/24
+nmap -sn 172.24.0.0/24 | grep "pluto"
 ```
