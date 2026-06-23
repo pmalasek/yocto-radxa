@@ -132,6 +132,11 @@ extract:
 flash dev:
     #!/usr/bin/env bash
     set -euo pipefail
+    if [[ ! -b "{{dev}}" ]]; then
+        echo "CHYBA: {{dev}} není blokové zařízení (nebo deska není v USB disk módu / je odpojená)."
+        echo "Zápis přerušen, aby se omylem nevytvořil obyčejný soubor místo zápisu na disk."
+        exit 1
+    fi
     wic="{{deploy}}/{{image}}-{{machine}}.wic"
     if [[ ! -f "$wic" ]]; then
         echo "Obraz $wic neexistuje – spusťte nejprve: just extract"
@@ -152,6 +157,11 @@ flash dev:
 flash-emmc dev:
     #!/usr/bin/env bash
     set -euo pipefail
+    if [[ ! -b "{{dev}}" ]]; then
+        echo "CHYBA: {{dev}} není blokové zařízení (nebo deska není v USB disk módu / je odpojená)."
+        echo "Zápis přerušen, aby se omylem nevytvořil obyčejný soubor místo zápisu na disk."
+        exit 1
+    fi
     wic="{{deploy}}/{{image}}-{{machine}}.wic"
     if [[ ! -f "$wic" ]]; then
         echo "Obraz $wic neexistuje – spusťte nejprve: just extract"
