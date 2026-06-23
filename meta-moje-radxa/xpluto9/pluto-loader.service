@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-EnvironmentFile=/opt/pluto9/.env
-ExecStart=/opt/pluto9/bin/pluto-loader
+EnvironmentFile=/opt/pluto/.env
+ExecStart=/opt/pluto/bin/pluto-loader
 Restart=on-failure
 RestartSec=5
 

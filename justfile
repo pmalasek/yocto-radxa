@@ -10,11 +10,58 @@ deploy    := build_dir / "tmp/deploy/images" / machine
 init      := "source poky/oe-init-build-env " + build_dir + " > /dev/null"
 chip_dir  := "chip"
 
+# Cesta ke klonu git@github.com:pmalasek/pluto9.git (výchozí: ../pluto9)
+# Přepis: PLUTO_DIR=/jina/cesta just pluto-fw-arm
+pluto_dir := env("PLUTO_DIR", "../pluto9")
+pluto_bin := "meta-moje-radxa/xpluto9/pluto/bin"
+
 # Výchozí recept – zobrazí seznam
 default:
     @just --list
 
 # ── Buildování ────────────────────────────────────────────────────────────────
+
+# Cross-kompiluje pluto-fw pro linux/arm64 a zkopíruje binárky do Yocto source.
+# Vyžaduje: Go toolchain, naklonovaný repozitář pmalasek/pluto9
+# Přepis cesty: PLUTO_DIR=/jina/cesta just pluto-fw-arm
+pluto-fw-arm:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    src="{{pluto_dir}}"
+    dest="{{justfile_directory()}}/{{pluto_bin}}"
+
+    # ── Klon / aktualizace repozitáře ────────────────────────────────────────
+    if [[ ! -d "$src/.git" ]]; then
+        echo "📥 Klonuji pmalasek/pluto9 → $src"
+        git clone git@github.com:pmalasek/pluto9.git "$src"
+    else
+        echo "🔄 Aktualizuji $src (git pull)"
+        git -C "$src" pull --ff-only
+    fi
+
+    if ! command -v go &>/dev/null; then
+        echo "❌ Go compiler nenalezen."
+        echo "   Instaluj: sudo apt install golang  nebo  https://go.dev/dl/"
+        exit 1
+    fi
+
+    echo "🔨 Cross-kompilace pluto-fw → linux/arm64  ($(go version))"
+    # Spouštíme z kořene repozitáře, aby go.work zahrnul modul pluto/shared
+    cd "$src"
+    GOARCH=arm64 GOOS=linux go build \
+        -ldflags="-s -w" \
+        -o pluto-fw/bin/ \
+        ./pluto-fw/cmd/...
+
+    echo "📦 Kopíruji binárky → $dest"
+    mkdir -p "$dest"
+    # Zkopíruje všechny spustitelné soubory (výstup go build)
+    find "$src/pluto-fw/bin/" -maxdepth 1 -type f -executable \
+        -exec cp -v {} "$dest/" \;
+
+    echo ""
+    echo "✅ Hotovo. Spusť: just build-pkg xpluto9"
 
 # Sestaví hlavní obraz (core-image-base)
 build:

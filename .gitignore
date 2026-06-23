@@ -9,3 +9,4 @@ build/*
 meta-moje-radxa/xpluto9/bin/
 meta-moje-radxa/xpluto9/certs/
 meta-moje-radxa/xpluto9/.env
+meta-moje-radxa/xpluto9/pluto/data/
